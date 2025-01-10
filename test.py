@@ -6,5 +6,6 @@ with open(pklpath, 'rb') as f:
     data = pickle.load(f)
 
 print(data["age"])
+print(len(data.keys()))
 # for key in data.keys():
     # print(key, data)

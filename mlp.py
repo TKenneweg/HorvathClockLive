@@ -1,18 +1,17 @@
-import torch 
-import sys
+import torch
+from torch.utils.data import Dataset, DataLoader, random_split, TensorDataset
 import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader, random_split
-import os 
+import torch.optim as optim
 import numpy as np
 import pickle
+import os
 from config import *
-
+import sys
 import matplotlib.pyplot as plt
-
-
 class MethylationDataset(Dataset):
     def __init__(self, series_names, data_folder):
         nsamples =0
+        #count the number of samples
         for series_id in series_names:
             series_subfolder = data_folder + "/" + series_id
             pkl_files = [f for f in os.listdir(series_subfolder) if f.endswith(".pkl")]
@@ -38,8 +37,6 @@ class MethylationDataset(Dataset):
             
         self.X = torch.tensor(X_data, dtype=torch.float32)
         self.y = torch.tensor(y_data, dtype=torch.float32)
-
-
     def __len__(self):
         return len(self.y)
 
@@ -53,11 +50,11 @@ class AgePredictorMLP(nn.Module):
         self.layer1 = nn.Linear(input_size, hidden_size)
         self.layer2 = nn.Linear(hidden_size, hidden_size)
         self.layer3 = nn.Linear(hidden_size, 1)
-        self.leaky_relu = nn.LeakyReLU()
+        self.relu = nn.LeakyReLU()
 
     def forward(self, x):
-        x = self.leaky_relu(self.layer1(x))
-        x = self.leaky_relu(self.layer2(x))
+        x = self.relu(self.layer1(x))
+        x = self.relu(self.layer2(x))
         x = self.layer3(x)
         return x
 
@@ -76,8 +73,8 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = AgePredictorMLP(dataset.X.shape[1], 256).to(device)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=LR)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
+    optimizer = optim.Adam(model.parameters(), lr=LR)
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=NUM_EPOCHS)
     criterion = nn.L1Loss()
 
     print("[INFO] Starting training...")
@@ -131,6 +128,3 @@ if __name__ == "__main__":
     plt.grid(True)
     plt.savefig("training_metrics.png")
     plt.show()
-
-
-    
