@@ -1,11 +1,6 @@
-import pickle 
+import pickle
+path = "./data/GSE41037/GSM1007129.pkl"
 
-pklpath = './data/GSE15745/GSM401538.pkl'
-
-with open(pklpath, 'rb') as f:
+with open(path, "rb") as f:
     data = pickle.load(f)
-
-print(data["age"])
-print(len(data.keys()))
-# for key in data.keys():
-    # print(key, data)
+    print(data)
